@@ -1,16 +1,11 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { SafeAreaView } from "react-native";
+import CheckoutList from "./components/CheckoutList"; // Adjusted import path
 
 export default function Index() {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Edit app/index.jsx to edit this screen.</Text>
-    </View>
+    <SafeAreaView style={{ flex: 1 }}>
+      <CheckoutList />
+    </SafeAreaView>
   );
 }
