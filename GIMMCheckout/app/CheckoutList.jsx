@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Button, FlatList, StyleSheet } from "react-native";
-import InfoModal from "./InfoModal"; // Adjusted import path
+import InfoModal from "./components/InfoModal"; // Import InfoModal component
 
 const sampleData = [
   { id: "1", title: "Laptop", info: "Dell XPS 13 - checked out for development." },
@@ -12,9 +12,15 @@ export default function CheckoutList() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedInfo, setSelectedInfo] = useState("");
 
+  // Function to open modal and set selected info
   const openModal = (infoText) => {
-    setSelectedInfo(infoText);
-    setModalVisible(true);
+    setSelectedInfo(infoText);  // Set the infoText
+    setModalVisible(true);      // Show the modal
+  };
+
+  // Function to close modal
+  const closeModal = () => {
+    setModalVisible(false); // Hide the modal
   };
 
   return (
@@ -25,15 +31,12 @@ export default function CheckoutList() {
         renderItem={({ item }) => (
           <View style={styles.itemRow}>
             <Text style={styles.itemText}>{item.title}</Text>
-            <Button title="Info" onPress={() => openModal(item.info)} />
+            <Button title="Info" onPress={() => openModal(item.info)} /> {/* Open modal with selected info */}
           </View>
         )}
       />
-      <InfoModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        content={selectedInfo}
-      />
+      {/* InfoModal is rendered conditionally */}
+      <InfoModal visible={modalVisible} onClose={closeModal} infoText={selectedInfo} />
     </View>
   );
 }

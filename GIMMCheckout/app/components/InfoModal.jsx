@@ -1,17 +1,19 @@
 import React from "react";
 import { Modal, View, Text, Button, StyleSheet } from "react-native";
 
-export default function InfoModal({ visible, onClose, content }) {
+export default function InfoModal({ visible, onClose, infoText }) {
+  if (!visible) return null; // Don't render modal if not visible
+
   return (
     <Modal
-      visible={visible}
-      animationType="slide"
       transparent={true}
+      animationType="slide"
+      visible={visible}
       onRequestClose={onClose}
     >
-      <View style={styles.modalBackground}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalText}>{content}</Text>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalText}>{infoText}</Text> {/* Display the infoText */}
           <Button title="Close" onPress={onClose} />
         </View>
       </View>
@@ -20,27 +22,21 @@ export default function InfoModal({ visible, onClose, content }) {
 }
 
 const styles = StyleSheet.create({
-  modalBackground: {
+  modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent overlay
   },
-  modalContainer: {
+  modalContent: {
     width: 300,
     padding: 20,
     backgroundColor: "white",
     borderRadius: 10,
     alignItems: "center",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
   },
   modalText: {
+    fontSize: 16,
     marginBottom: 20,
-    fontSize: 18,
-    textAlign: "center",
   },
 });
