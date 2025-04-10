@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');  // Import the cors package
 const { query } = require('./db');  // Import the query function
+const path = require('path');
 
 const app = express();
 const upload = multer();
@@ -139,6 +140,41 @@ app.post("/api/register", upload.none(),
             return res.status(500).json({ message: 'An error occurred' });
         }
     });
+
+app.get('/api/device-types', async (req, res) => {
+    const selectSql = 'SELECT * FROM gimmcheckout_device_types';
+
+    try {
+        const result = await query(selectSql);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'An error occurred' });
+    }
+});
+
+app.get('/api/device/:id', async (req, res) => {
+    const id = req.params.id;
+    const selectSql = `
+  SELECT 
+    d.id AS device_id,
+    d.device_number AS device_number,
+    d.device_type_id,
+    t.id AS type_id,
+    t.device_name,
+    t.image_url
+  FROM gimmcheckout_devices d
+  INNER JOIN gimmcheckout_device_types t ON d.device_type_id = t.id
+  WHERE d.device_type_id = ?
+`;
+    try {
+        const result = await query(selectSql, [id]);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'An error occurred' });
+    }
+})
 
 app.get('/api/logout', (req, res) => {
     res.clearCookie('token');
