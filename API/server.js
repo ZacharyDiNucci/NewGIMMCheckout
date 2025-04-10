@@ -35,8 +35,9 @@ app.use((req, res, next) => {
 });
 
 app.use(cookieParser());
-
 app.use(express.json());
+
+app.use('/uploads', express.static(path.join(__dirname, 'local-bucket')));
 
 // API endpoint to validate session token
 app.post('/api/validate-token', async (req, res) => {
