@@ -9,8 +9,9 @@ This is the starter api for the GIMMCheckout system.
     ```bash
     npm i
     ```
+2. Make sure you have the .env file within the API folder
 
-2. Start the server
+3. Start the server
 
     ```bash
     npm start
