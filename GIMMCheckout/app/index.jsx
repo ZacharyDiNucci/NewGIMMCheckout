@@ -58,13 +58,13 @@ export default function Login() {
         secureTextEntry
       />
 
-      <View style={styles.rememberMeContainer}>
+      {/* <View style={styles.rememberMeContainer}>
         <CheckBox
           value={rememberMe}
           onValueChange={setRememberMe}
         />
         <Text style={styles.rememberMeText}>Remember Me</Text>
-      </View>
+      </View> */}
 
       {/* Display error message under Remember Me */}
       {errorMessage ? (
