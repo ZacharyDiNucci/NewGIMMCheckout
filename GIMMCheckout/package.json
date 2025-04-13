@@ -1,6 +1,6 @@
 {
   "name": "gimmcheckout",
-  "main": "expo-router/entry",
+  "main": "./app/index.jsx",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
