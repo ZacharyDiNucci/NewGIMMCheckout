@@ -66,12 +66,12 @@ app.post('/api/validate-token', async (req, res) => {
 });
 
 // API endpoint to log in
-app.post('/api/login', upload.none(),
+app.post('/api/login',
+    upload.none(),
     check('username').notEmpty().withMessage('Username is required'),
     check('password').notEmpty().withMessage('Password is required'),
     async (req, res) => {
         const errors = validationResult(req);
-        console.log(errors);
         if (!errors.isEmpty()) {
             return res.status(400).json({
                 message: 'Enter username and password',
@@ -88,10 +88,19 @@ app.post('/api/login', upload.none(),
                 const user = result[0];
                 if (bcrypt.compareSync(password, user.password)) {
                     req.session.user = { userId: user.id };
+
                     const tokenExpiration = req.body['remember-me'] === 'true' ? '7d' : '1d';
-                    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: tokenExpiration });
-                    res.cookie('token', token, { maxAge: tokenExpiration === '7d' ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000, httpOnly: false });
-                    return res.status(200).json({ message: 'Login successful' });
+                    const token = jwt.sign(
+                        { userId: user.id },
+                        process.env.JWT_SECRET,
+                        { expiresIn: tokenExpiration }
+                    );
+
+                    return res.status(200).json({
+                        message: 'Login successful',
+                        token, // ✅ Send token back in response
+                        userId: user.id, // optional: send user info
+                    });
                 } else {
                     return res.status(400).json({ message: 'Invalid username or password' });
                 }
@@ -99,10 +108,12 @@ app.post('/api/login', upload.none(),
                 return res.status(400).json({ message: 'Invalid username or password' });
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
             return res.status(500).json({ message: 'An error occurred' });
         }
-    });
+    }
+);
+
 
 app.post("/api/register", upload.none(),
     check('first-name').notEmpty().withMessage('First name is required'),
@@ -140,6 +151,35 @@ app.post("/api/register", upload.none(),
             return res.status(500).json({ message: 'An error occurred' });
         }
     });
+
+app.post('/api/check-token', async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+
+    if (!token) {
+        return res.status(401).json({ message: 'Token required' });
+    }
+
+    try {
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Optional: Check user exists
+        const userId = decoded.userId;
+        const result = await query('SELECT id FROM gimmcheckout_users WHERE id = ?', [userId]);
+
+        if (result.length === 0) {
+            return res.status(401).json({ message: 'Invalid user' });
+        }
+
+        // Token is valid and user exists
+        return res.status(200).json({ message: 'Token valid' });
+
+    } catch (err) {
+        console.error("Token verification failed:", err);
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+});
 
 app.get('/api/device-types', async (req, res) => {
     const selectSql = 'SELECT * FROM gimmcheckout_device_types';

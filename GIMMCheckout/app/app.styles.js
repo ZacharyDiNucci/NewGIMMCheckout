@@ -19,14 +19,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         borderRadius: 5,
       },
-      rememberMeContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 20,
-      },
-      rememberMeText: {
-        marginLeft: 8,
-      },
       errorText: {
         color: "red",
         marginBottom: 12,
