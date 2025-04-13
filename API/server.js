@@ -181,6 +181,48 @@ app.post('/api/check-token', async (req, res) => {
     }
 });
 
+app.post('/api/user-devices', async (req, res) => {
+    // Get the token from the Authorization header
+    const token = req.headers.authorization?.split(' ')[1]; // The token is after 'Bearer'
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is required' });
+    }
+
+    try {
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Extract the userId from the decoded token
+        const userId = decoded.userId; // Assuming 'userId' is a field in your token
+
+        const selectSql = `
+            SELECT
+                l.id AS loan_id,
+                l.device_id,
+                l.borrower_id,
+                l.due_date,
+                d.device_number AS device_number,
+                d.device_type_id,
+                t.id AS type_id,
+                t.device_name,
+                t.image_url
+            FROM gimmcheckout_loans l
+            INNER JOIN gimmcheckout_devices d ON l.device_id = d.id
+            INNER JOIN gimmcheckout_device_types t ON d.device_type_id = t.id
+            WHERE l.borrower_id = ?
+        `;
+
+        // Query the database using the userId
+        const result = await query(selectSql, [userId]);
+
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'An error occurred' });
+    }
+});
+
 app.get('/api/device-types', async (req, res) => {
     const selectSql = 'SELECT * FROM gimmcheckout_device_types';
 
@@ -215,12 +257,6 @@ app.get('/api/device/:id', async (req, res) => {
         return res.status(500).json({ message: 'An error occurred' });
     }
 })
-
-app.get('/api/logout', (req, res) => {
-    res.clearCookie('token');
-    req.session.destroy();
-    res.status(200).json({ message: 'Logged out' });
-});
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
