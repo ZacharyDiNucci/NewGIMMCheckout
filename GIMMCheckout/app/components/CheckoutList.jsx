@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Button, FlatList, StyleSheet } from "react-native";
-import InfoModal from "./components/InfoModal"; // Import InfoModal component
+import InfoModal from "./InfoModal"; // Import InfoModal component
 
 const sampleData = [
   { id: "1", title: "Laptop", info: "Dell XPS 13 - checked out for development." },
