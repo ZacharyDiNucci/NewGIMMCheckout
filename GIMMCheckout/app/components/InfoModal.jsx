@@ -15,8 +15,9 @@ export default function InfoModal({ visible, onClose, item}) {
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
         
-          <Image source={{ uri: "http://localhost:5000/local-bucket/" + item.imageUrl }} style={styles.modalImage} resizeMode="contain"/>
-          <Text style={styles.modalText}>{item.device_name} #{item.device_number}</Text> {/* Display the infoText */}
+          <Image source={{ uri: "http://localhost:5000/local-bucket/" + item.image_url }} style={styles.modalImage} resizeMode="contain"/>
+          <Text style={styles.modalText}>{item.device_name} <b>#</b>{item.device_number}</Text> {/* Display the infoText */}
+          <Text style={styles.modalText}>{item.description}</Text> {/* Display the decsription */}
           <Text style={styles.modalText}>Due: {new Date(item.due_date).toLocaleDateString()} </Text> 
           <Button title="Close" onPress={onClose} />
         </View>

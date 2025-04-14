@@ -203,7 +203,7 @@ app.post('/api/user-devices', async (req, res) => {
                 l.due_date,
                 l.borrow_datetime,
                 d.device_number AS device_number,
-                d.description,
+                t.description as description,
                 t.device_name,
                 t.image_url
             FROM gimmcheckout_loans l
