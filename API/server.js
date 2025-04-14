@@ -40,6 +40,7 @@ app.use(express.json());
 
 app.use('/uploads', express.static(path.join(__dirname, 'local-bucket')));
 
+app.use('/local-bucket', express.static(path.join(__dirname, 'local-bucket')));
 // API endpoint to validate session token
 app.post('/api/validate-token', async (req, res) => {
     const token = req.cookies.token;
@@ -199,12 +200,10 @@ app.post('/api/user-devices', async (req, res) => {
         const selectSql = `
             SELECT
                 l.id AS loan_id,
-                l.device_id,
-                l.borrower_id,
                 l.due_date,
+                l.borrow_datetime,
                 d.device_number AS device_number,
-                d.device_type_id,
-                t.id AS type_id,
+                d.description,
                 t.device_name,
                 t.image_url
             FROM gimmcheckout_loans l

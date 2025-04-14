@@ -1,7 +1,8 @@
 import React from "react";
-import { Modal, View, Text, Button, StyleSheet } from "react-native";
+import { Modal, View, Text, Image, Button, StyleSheet } from "react-native";
+import styles from '../app.styles';
 
-export default function InfoModal({ visible, onClose, infoText }) {
+export default function InfoModal({ visible, onClose, item}) {
   if (!visible) return null; // Don't render modal if not visible
 
   return (
@@ -13,30 +14,13 @@ export default function InfoModal({ visible, onClose, infoText }) {
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalText}>{infoText}</Text> {/* Display the infoText */}
+        
+          <Image source={{ uri: "http://localhost:5000/local-bucket/" + item.imageUrl }} style={styles.modalImage} resizeMode="contain"/>
+          <Text style={styles.modalText}>{item.device_name} #{item.device_number}</Text> {/* Display the infoText */}
+          <Text style={styles.modalText}>Due: {new Date(item.due_date).toLocaleDateString()} </Text> 
           <Button title="Close" onPress={onClose} />
         </View>
       </View>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent overlay
-  },
-  modalContent: {
-    width: 300,
-    padding: 20,
-    backgroundColor: "white",
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  modalText: {
-    fontSize: 16,
-    marginBottom: 20,
-  },
-});

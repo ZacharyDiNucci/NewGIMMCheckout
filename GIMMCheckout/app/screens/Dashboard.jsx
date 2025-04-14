@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Button, TouchableOpacity } from 'react-native';
 import { useAuth } from '../AuthContext';
 import { LogoutButton } from '../components/LogoutButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import InfoModal from "../components/InfoModal"; // Import InfoModal component
 import styles from '../app.styles';
 
 const Dashboard = () => {
   const { isLoggedIn, setAccountToken } = useAuth();  // Access AuthContext to get the token and login state
   const [devices, setDevices] = useState(null);  // State to store the fetched devices
   const [error, setError] = useState(null);  // State to store any errors
+  const [modalVisible, setModalVisible] = useState(false);  // State to control modal visibility
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     // If the user is logged in, fetch user devices
@@ -48,19 +51,53 @@ const Dashboard = () => {
     }
   };
 
+  const openModal = (item) => {
+    setSelectedItem(item);  // Set the selected item
+    setModalVisible(true);      // Show the modal
+  };
+
+  // Function to close modal
+  const closeModal = () => {
+    setModalVisible(false); // Hide the modal
+  };
+
   return (
     <View style={styles.container}>
       {error && <Text style={styles.errorText}>{error}</Text>}
       {devices ? (
-        <View>
-          {/* TODO: dynamically create list items from devices */}
-          <Text>Devices: {JSON.stringify(devices)}</Text>
+        <View style={styles.container}>
+          <FlatList
+            data={devices}
+            keyExtractor={(item) => item.loan_id.toString()}
+            ListHeaderComponent={
+              <View style={styles.headerRow}>
+                <Text style={[styles.headerText, styles.nameColumn]}>Name</Text>
+                <Text style={[styles.headerText, styles.countColumn]}>#</Text>
+                <Text style={[styles.headerText, styles.dueColumn]}>Due By</Text>
+              </View>
+            }
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => openModal(item)}>
+                <View style={styles.itemRow}>
+                  <Text style={[styles.itemText, styles.nameColumn]}>{item.device_name}</Text>
+                  <Text style={[styles.itemText, styles.countColumn]}>{item.device_number}</Text>
+                  <Text style={[styles.itemText, styles.dueColumn]}>
+                    {new Date(item.due_date).toLocaleDateString()}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
         </View>
+
       ) : (
         <Text>Loading devices...</Text>
       )}
-      <Button title="Refresh" onPress={fetchUserDevices} />
-      <LogoutButton />
+      <View style={styles.buttonRow}>
+        <Button title="Refresh" onPress={fetchUserDevices} />
+        <LogoutButton />
+      </View>
+      <InfoModal visible={modalVisible} onClose={closeModal} item={selectedItem}/>
     </View>
   );
 };
