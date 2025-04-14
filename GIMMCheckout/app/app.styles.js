@@ -7,6 +7,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#333', // dark background
         padding: 16,
       },
+    containerLight: {
+      flex: 1,
+        justifyContent: "center",
+        backgroundColor: '#ccc',
+        padding: 16,
+    },
       title: {
         fontSize: 32,
         fontWeight: "bold",

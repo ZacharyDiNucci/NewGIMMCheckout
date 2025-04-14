@@ -182,6 +182,25 @@ app.post('/api/check-token', async (req, res) => {
     }
 });
 
+app.post('/api/user_details', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is required' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.userId;
+        const selectSql = `SELECT first_name, last_name FROM gimmcheckout_users WHERE id = ?`;
+        const result = await query(selectSql, [userId]);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'An error occurred' });
+    }
+})
+
 app.post('/api/user-devices', async (req, res) => {
     // Get the token from the Authorization header
     const token = req.headers.authorization?.split(' ')[1]; // The token is after 'Bearer'
@@ -222,6 +241,18 @@ app.post('/api/user-devices', async (req, res) => {
     }
 });
 
+app.get('/api/item-categories', async (req, res) => {
+    const selectSql = 'SELECT * FROM gimmcheckout_item_categories';
+
+    try {
+        const result = await query(selectSql);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'An error occurred' });
+    }
+});
+
 app.get('/api/device-types', async (req, res) => {
     const selectSql = 'SELECT * FROM gimmcheckout_device_types';
 
@@ -243,7 +274,8 @@ app.get('/api/device/:id', async (req, res) => {
     d.device_type_id,
     t.id AS type_id,
     t.device_name,
-    t.image_url
+    t.image_url,
+    t.description
   FROM gimmcheckout_devices d
   INNER JOIN gimmcheckout_device_types t ON d.device_type_id = t.id
   WHERE d.device_type_id = ?

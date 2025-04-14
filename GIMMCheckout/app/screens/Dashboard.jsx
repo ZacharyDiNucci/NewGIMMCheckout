@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Button, TouchableOpacity } from 'react-native';
 import { useAuth } from '../AuthContext';
 import { API_BASE_URL } from '../config';
-import { LogoutButton } from '../components/LogoutButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import InfoModal from "../components/InfoModal"; // Import InfoModal component
+import ActiveRentalsList from "../components/ActiveRentalsList";
+import ReservationSystem from "../components/ReservationSystem";
+import NavFooter from "../components/NavFooter";
 import styles from '../app.styles';
 
 const Dashboard = () => {
   const { isLoggedIn, setAccountToken } = useAuth();  // Access AuthContext to get the token and login state
-  const [devices, setDevices] = useState(null);  // State to store the fetched devices
+  const [userDetails, setUserDetails] = useState(null);
+  const [activeTab, setActiveTab] = useState('active');
   const [error, setError] = useState(null);  // State to store any errors
   const [modalVisible, setModalVisible] = useState(false);  // State to control modal visibility
   const [selectedItem, setSelectedItem] = useState(null);
@@ -17,37 +19,44 @@ const Dashboard = () => {
   useEffect(() => {
     // If the user is logged in, fetch user devices
     if (isLoggedIn) {
-      fetchUserDevices();
+      fetchUserDetails();
     }
   }, [isLoggedIn]);  // Run when isLoggedIn changes
 
-  // Function to fetch user devices
-  const fetchUserDevices = async () => {
+  const handleLogout = async () => {
     try {
-      const token = await AsyncStorage.getItem('accountToken'); // Retrieve token from AsyncStorage
+      setAccountToken("");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  const fetchUserDetails = async () => {
+    try {
+      const token = await AsyncStorage.getItem('accountToken'); // ✅ get the token
 
       if (!token) {
         setError('No token found');
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/user-devices`, {
+      const response = await fetch(`${API_BASE_URL}/api/user_details`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,  // Pass the token in the Authorization header
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ token: token }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setDevices(data);  // Set the fetched devices data
+        setUserDetails(data[0]);
       } else {
-        setError('Failed to fetch devices');
+        setError('Failed to fetch user details');
       }
     } catch (error) {
-      setError('An error occurred while fetching devices');
+      setError('An error occurred while fetching user details');
       console.error(error);
     }
   };
@@ -64,41 +73,16 @@ const Dashboard = () => {
 
   return (
     <View style={styles.container}>
-      {error && <Text style={styles.errorText}>{error}</Text>}
-      {devices ? (
-        <View style={styles.container}>
-          <FlatList
-            data={devices}
-            keyExtractor={(item) => item.loan_id.toString()}
-            ListHeaderComponent={
-              <View style={styles.headerRow}>
-                <Text style={[styles.headerText, styles.nameColumn]}>Name</Text>
-                <Text style={[styles.headerText, styles.countColumn]}>#</Text>
-                <Text style={[styles.headerText, styles.dueColumn]}>Due By</Text>
-              </View>
-            }
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => openModal(item)}>
-                <View style={styles.itemRow}>
-                  <Text style={[styles.itemText, styles.nameColumn]}>{item.device_name}</Text>
-                  <Text style={[styles.itemText, styles.countColumn]}>{item.device_number}</Text>
-                  <Text style={[styles.itemText, styles.dueColumn]}>
-                    {new Date(item.due_date).toLocaleDateString()}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-
-      ) : (
-        <Text>Loading devices...</Text>
-      )}
+      <Text style={styles.headerText}>
+        {userDetails ? `Welcome, ${userDetails.first_name}` : 'Username'}
+      </Text>
+      <Text style={styles.headerText}>{new Date().toLocaleDateString()}</Text>
+      {activeTab == 'active' ? <ActiveRentalsList /> : <ReservationSystem />}
       <View style={styles.buttonRow}>
-        <Button title="Refresh" onPress={fetchUserDevices} />
-        <LogoutButton />
+        {/* <Button title="Refresh" onPress={fetchUserDevices} /> */}
+        <Button title="Logout" onPress={handleLogout} />
       </View>
-      <InfoModal visible={modalVisible} onClose={closeModal} item={selectedItem}/>
+      <NavFooter activeTab={activeTab} setActiveTab={setActiveTab} />
     </View>
   );
 };
