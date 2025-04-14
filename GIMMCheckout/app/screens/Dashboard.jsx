@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Button, TouchableOpacity } from 'react-native';
 import { useAuth } from '../AuthContext';
+import { API_BASE_URL } from '../config';
 import { LogoutButton } from '../components/LogoutButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import InfoModal from "../components/InfoModal"; // Import InfoModal component
@@ -30,7 +31,7 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/user-devices', {
+      const response = await fetch(`${API_BASE_URL}/api/user-devices`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
