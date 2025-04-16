@@ -10,6 +10,7 @@ const ReservationSystem = () => {
   const [selectedType, setSelectedType] = useState(null);
   const [deviceTypes, setDeviceTypes] = useState([]);
   const [devices, setDevices] = useState([]);
+  const [loans, setLoans] = useState([]);
   const [loading, setLoading] = useState({
     categories: true,
     types: false,
@@ -53,6 +54,7 @@ const ReservationSystem = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/device/${typeId}`);
       const data = await response.json();
+      console.log("Devices data:", data); // Log the devices data
       setDevices(data);
     } catch (error) {
       console.error("Error fetching devices:", error);
@@ -60,6 +62,20 @@ const ReservationSystem = () => {
       setLoading(prev => ({ ...prev, devices: false }));
     }
   };
+
+  const fetchLoans = async (typeId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/loaned-devices?typeId=${typeId}`);  // Pass typeId as query parameter
+      const data = await response.json();
+      console.log("Loans data:", data); // Log the loans data
+      setLoans(data);
+    } catch (error) {
+      console.error("Error fetching loans:", error);
+    } finally {
+      setLoading(prev => ({ ...prev, devices: false }));
+    }
+  };
+  
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
@@ -70,6 +86,7 @@ const ReservationSystem = () => {
   const handleTypeSelect = (type) => {
     setSelectedType(type);
     fetchDevices(type.id);
+    fetchLoans(type.id);
   };
 
   const goBack = () => {
@@ -77,6 +94,7 @@ const ReservationSystem = () => {
     setSelectedCategory(null);
     setDevices([]);
     setDeviceTypes([]);
+    setLoans([]);
     setLoading({ categories: false, types: false, devices: false });
   };
 
@@ -84,7 +102,7 @@ const ReservationSystem = () => {
     <TouchableOpacity style={styles.techButton} onPress={() => handleCategorySelect(item)}>
       <Image
         source={{ uri: `${API_BASE_URL}/local-bucket/${item.image_url}` }}
-        style={styles.techImage}
+        style={styles.typeImage}
         resizeMode="contain"
       />
       <Text style={styles.techText}>{item.category_name}</Text>
@@ -109,14 +127,23 @@ const ReservationSystem = () => {
   const renderDevices = ({ item }) => {
     if (!item.device_type_id) return null;
 
+    // Check if the device is loaned
+    const isLoaned = loans.some(loan => loan.device_number === item.device_number);
+
     return (
-      <TouchableOpacity style={styles.deviceButton} onPress={() => openModal(item)}>
+      <TouchableOpacity
+        style={[styles.deviceButton, isLoaned && styles.disabledButton]}  // Disable if loaned
+        disabled={isLoaned}  // Disable the device if it's loaned
+        onPress={() => !isLoaned && openModal(item)}  // Only open modal if not loaned
+      >
         <Image
           source={{ uri: `${API_BASE_URL}/local-bucket/${item.image_url}` }}
           style={styles.techImage}
           resizeMode="contain"
         />
-        <Text style={styles.deviceText}>{item.device_name}</Text>
+        <Text style={styles.deviceText}>
+          {item.device_name} {isLoaned && "(Loaned)"}
+        </Text>
       </TouchableOpacity>
     );
   };
@@ -136,44 +163,68 @@ const ReservationSystem = () => {
     <View style={styles.container}>
       <Text style={styles.prompt}>What would you like to borrow?</Text>
   
-      {(selectedCategory || selectedType) && (
-        <View style={styles.deviceHeader}>
-          <Button title="Back" onPress={goBack} />
-          <Text style={styles.techTitle}>
-            {selectedType?.type_name || selectedCategory?.category_name}
-          </Text>
-        </View>
-      )}
-  
       {selectedType ? (
-        loading.devices ? (
-          <ActivityIndicator size="large" color="#fff" style={{ marginTop: 50 }} />
-        ) : (
-          <FlatList
-            key={"devices"}
-            data={devices}
-            renderItem={renderDevices}
-            keyExtractor={(item, index) => `${item.device_type_id}-${index}`}
-            numColumns={1}
-            contentContainerStyle={styles.listContent}
-          />
-        )
+        <View style={styles.containerLight}>
+          {(selectedCategory || selectedType) && (
+            <View style={styles.deviceHeader}>
+              <Button title="Back" onPress={goBack} />
+              <Text style={styles.techTitle}>
+                {selectedType?.type_name || selectedCategory?.category_name}
+              </Text>
+            </View>
+          )}
+  
+          {loading.devices ? ( // Correct the conditional rendering
+            <ActivityIndicator size="large" color="#fff" style={{ marginTop: 50 }} />
+          ) : (
+            <FlatList
+              key={"devices"}
+              data={devices}
+              renderItem={renderDevices}
+              keyExtractor={(item, index) => `${item.device_type_id}-${index}`}
+              numColumns={1}
+              contentContainerStyle={styles.listContent}
+            />
+          )}
+        </View>
       ) : selectedCategory ? (
-        loading.types ? (
-          <ActivityIndicator size="large" color="#fff" style={{ marginTop: 50 }} />
-        ) : (
-          <FlatList
-            key={"types"}
-            data={deviceTypes}
-            renderItem={renderTypes}
-            keyExtractor={(item) => item.id.toString()}
-            numColumns={2}
-            columnWrapperStyle={styles.techRow}
-            contentContainerStyle={styles.listContent}
-          />
-        )
+        <View style={styles.container}>
+          {(selectedCategory || selectedType) && (
+            <View style={styles.deviceHeader}>
+              <Button title="Back" onPress={goBack} />
+              <Text style={styles.techTitle}>
+                {selectedType?.type_name || selectedCategory?.category_name}
+              </Text>
+            </View>
+          )}
+  
+          {loading.types ? ( // Correct the conditional rendering
+            <ActivityIndicator size="large" color="#fff" style={{ marginTop: 50 }} />
+          ) : (
+            <FlatList
+              key={"types"}
+              data={deviceTypes}
+              renderItem={renderTypes}
+              keyExtractor={(item) => item.id.toString()}
+              numColumns={2}
+              columnWrapperStyle={styles.techRow}
+              contentContainerStyle={styles.listContent}
+            />
+          )}
+        </View>
       ) : loading.categories ? (
-        <ActivityIndicator size="large" color="#fff" style={{ marginTop: 50 }} />
+        <View style={styles.container}>
+          {(selectedCategory || selectedType) && (
+            <View style={styles.deviceHeader}>
+              <Button title="Back" onPress={goBack} />
+              <Text style={styles.techTitle}>
+                {selectedType?.type_name || selectedCategory?.category_name}
+              </Text>
+            </View>
+          )}
+  
+          <ActivityIndicator size="large" color="#fff" style={{ marginTop: 50 }} />
+        </View>
       ) : (
         <FlatList
           key={"categories"}
@@ -185,9 +236,11 @@ const ReservationSystem = () => {
           contentContainerStyle={styles.listContent}
         />
       )}
+  
       <ResModal visible={modalVisible} onClose={closeModal} item={selectedItem} />
     </View>
   );
+  
 }
 
 export default ReservationSystem;

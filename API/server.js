@@ -201,6 +201,8 @@ app.post('/api/user_details', async (req, res) => {
     }
 })
 
+
+
 app.post('/api/user-devices', async (req, res) => {
     // Get the token from the Authorization header
     const token = req.headers.authorization?.split(' ')[1]; // The token is after 'Bearer'
@@ -290,6 +292,63 @@ app.get('/api/device/:id', async (req, res) => {
         return res.status(500).json({ message: 'An error occurred' });
     }
 })
+
+app.get('/api/loaned-devices', async (req, res) => {
+    const { typeId } = req.query;  // Use query parameter instead of URL parameter
+    const selectSql = `
+      SELECT
+        l.id AS loan_id,
+        l.due_date,
+        l.borrow_datetime,
+        d.device_number,
+        t.description,
+        t.device_name,
+        t.image_url
+      FROM gimmcheckout_loans l
+      INNER JOIN gimmcheckout_devices d ON l.device_id = d.id
+      INNER JOIN gimmcheckout_device_types t ON d.device_type_id = t.id
+      WHERE d.device_type_id = ?
+    `;
+
+    try {
+      const result = await query(selectSql, [typeId]);  // Use typeId directly
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Error fetching loaned devices by type:', error);
+      return res.status(500).json({ message: 'An error occurred while fetching loaned devices' });
+    }
+});
+
+  
+app.get('/api/all-devices', async (req, res) => {
+
+    const selectSql = 'SELECT * FROM gimmcheckout_devices';
+
+    // const selectSql = `
+    //   SELECT
+    //     l.id AS loan_id,
+    //     l.due_date,
+    //     l.borrow_datetime,
+    //     d.device_number,
+    //     t.description,
+    //     t.device_name,
+    //     t.image_url
+    //   FROM gimmcheckout_loans l
+    //   INNER JOIN gimmcheckout_devices d ON l.device_id = d.id
+    //   INNER JOIN gimmcheckout_device_types t ON d.device_type_id = t.id
+    // `;
+  
+    try {
+      const result = await query(selectSql);
+      console.log("Devices:");
+
+      console.log(result);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Error fetching loaned devices:', error);
+      return res.status(500).json({ message: 'An error occurred while fetching loaned devices' });
+    }
+  });
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

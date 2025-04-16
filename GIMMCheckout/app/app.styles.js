@@ -189,10 +189,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
       },
-      techImage: {
+      typeImage: {
         width: '100%',
         height: 0,
         paddingBottom: '100%',
+        borderRadius: 10,
+      },
+      techImage: {
+        width: 100,
+        height: 100,
         borderRadius: 10,
       },
       techText: {
