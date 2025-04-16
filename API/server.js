@@ -40,6 +40,7 @@ app.use(express.json());
 
 app.use('/uploads', express.static(path.join(__dirname, 'local-bucket')));
 
+app.use('/local-bucket', express.static(path.join(__dirname, 'local-bucket')));
 // API endpoint to validate session token
 app.post('/api/validate-token', async (req, res) => {
     const token = req.cookies.token;
@@ -181,6 +182,25 @@ app.post('/api/check-token', async (req, res) => {
     }
 });
 
+app.post('/api/user_details', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is required' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.userId;
+        const selectSql = `SELECT first_name, last_name FROM gimmcheckout_users WHERE id = ?`;
+        const result = await query(selectSql, [userId]);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'An error occurred' });
+    }
+})
+
 app.post('/api/user-devices', async (req, res) => {
     // Get the token from the Authorization header
     const token = req.headers.authorization?.split(' ')[1]; // The token is after 'Bearer'
@@ -199,12 +219,10 @@ app.post('/api/user-devices', async (req, res) => {
         const selectSql = `
             SELECT
                 l.id AS loan_id,
-                l.device_id,
-                l.borrower_id,
                 l.due_date,
+                l.borrow_datetime,
                 d.device_number AS device_number,
-                d.device_type_id,
-                t.id AS type_id,
+                t.description as description,
                 t.device_name,
                 t.image_url
             FROM gimmcheckout_loans l
@@ -216,6 +234,19 @@ app.post('/api/user-devices', async (req, res) => {
         // Query the database using the userId
         const result = await query(selectSql, [userId]);
 
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'An error occurred' });
+    }
+});
+
+app.get('/api/item-categories', async (req, res) => {
+    const selectSql = 'SELECT * FROM gimmcheckout_item_categories';
+
+    try {
+        const result = await query(selectSql);
+        console.log(result)
         return res.status(200).json(result);
     } catch (error) {
         console.log(error);
@@ -236,7 +267,8 @@ app.get('/api/device-types', async (req, res) => {
 });
 
 app.get('/api/device/:id', async (req, res) => {
-    const id = req.params.id;
+    const id = parseInt(req.params.id, 10);
+    console.log("Fetching devices with device_type_id:", id);
     const selectSql = `
   SELECT 
     d.id AS device_id,
@@ -244,13 +276,16 @@ app.get('/api/device/:id', async (req, res) => {
     d.device_type_id,
     t.id AS type_id,
     t.device_name,
-    t.image_url
+    t.image_url,
+    t.description
   FROM gimmcheckout_devices d
   INNER JOIN gimmcheckout_device_types t ON d.device_type_id = t.id
   WHERE d.device_type_id = ?
 `;
+console.log(selectSql)
     try {
         const result = await query(selectSql, [id]);
+        console.log(result)
         return res.status(200).json(result);
     } catch (error) {
         console.log(error);

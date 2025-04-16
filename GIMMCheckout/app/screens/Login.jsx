@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert, CheckBox } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Checkbox} from "react-native";
 import { useAuth } from '../AuthContext';
 import styles from '../app.styles';
 import { API_BASE_URL } from '../config';
@@ -43,19 +43,21 @@ export default function Login() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+    <View style={styles.loginScreenContainer}>
+      <Text style={styles.loginHeader}>GIMM Checkout</Text>
 
       <TextInput
-        style={styles.input}
+        style={styles.loginInput}
         placeholder="Username"
+        placeholderTextColor="#555"
         value={username}
         onChangeText={setUsername}
       />
 
       <TextInput
-        style={styles.input}
+        style={styles.loginInput}
         placeholder="Password"
+        placeholderTextColor="#555"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -65,7 +67,13 @@ export default function Login() {
         <Text style={styles.errorText}>{errorMessage}</Text>
       ) : null}
 
-      <Button title="Log In" onPress={handleLogin} />
+      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <Text style={styles.loginButtonText}>Login</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity>
+        <Text style={styles.loginLinkText}>Request Account</Text>
+      </TouchableOpacity>
     </View>
   );
 }
