@@ -12,10 +12,10 @@ const ReservationSystem = () => {
     const [loadingDevices, setLoadingDevices] = useState(true);
 
     useEffect(() => {
-        fetchDeviceTypes();
+      fetchDeviceCatagories();
     }, []);
 
-    const fetchDeviceTypes = async () => {
+    const fetchDeviceCatagories = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/item-categories`);
         const data = await response.json();
@@ -27,9 +27,17 @@ const ReservationSystem = () => {
       }
     };
 
+    const parseID = (id) => {
+      if (id === 1) {
+
+      } else {
+        fetchDevices(id + 2);
+      }
+    };
+
     const renderDeviceTypes = ({ item }) => {    
       return (
-        <TouchableOpacity style={styles.techButton} onPress={() => fetchDevices(item.id)}> 
+        <TouchableOpacity style={styles.techButton} onPress={() => parseID(item.id)}> 
           <Image
             source={{ uri: `${API_BASE_URL}/local-bucket/` + item.image_url }}
             style={styles.techImage}
@@ -38,6 +46,20 @@ const ReservationSystem = () => {
           <Text style={styles.techText}>{item.category_name}</Text> {/* Change device_name to category_name */}
         </TouchableOpacity>
       );
+    };
+
+    const fetchDeviceTypes = async (typeId) => {
+      console.log("Fetching devices for type ID:", typeId);
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/device/${typeId}`);
+        const data = await response.json();
+        console.log("Fetched devices:", data);
+        setSelectedCatagory(data);
+      } catch (error) {
+        console.error("Error fetching device types:", error);
+      } finally {
+        setLoadingDevices(false);
+      }
     };
     
     const fetchDevices = async (typeId) => {
@@ -53,6 +75,7 @@ const ReservationSystem = () => {
         setLoadingDevices(false);
       }
     };
+
 
     const renderDevices = ({ item }) => {
       console.log("Rendering item:", item);  // Log each item to ensure it has expected fields
