@@ -70,9 +70,9 @@ const ActiveRentalsList = () => {
             keyExtractor={(item) => item.loan_id.toString()}
             ListHeaderComponent={
               <View style={styles.headerRow}>
-                <Text style={[styles.headerText, styles.nameColumn]}>Name</Text>
-                <Text style={[styles.headerText, styles.countColumn]}>#</Text>
-                <Text style={[styles.headerText, styles.dueColumn]}>Due By</Text>
+                <Text style={[styles.columnHeader, styles.nameColumn]}>Name</Text>
+                <Text style={[styles.columnHeader, styles.countColumn]}>#</Text>
+                <Text style={[styles.columnHeader, styles.dueColumn]}>Due By</Text>
               </View>
             }
             renderItem={({ item }) => (

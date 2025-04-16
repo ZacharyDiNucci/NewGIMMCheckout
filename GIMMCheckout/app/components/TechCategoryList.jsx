@@ -49,9 +49,11 @@ const TechCategoryList = () => {
       <View style={styles.header}>
         <Text style={styles.welcome}>Welcome, User!</Text>
         <Text style={styles.date}>April 6th, 2025</Text>
+        <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>
+          What would you like to borrow?
+        </Text>
       </View>
 
-      <Text style={styles.prompt}>What would you like to borrow?</Text>
 
       {loading ? (
         <ActivityIndicator size="large" color="#fff" style={{ marginTop: 50 }} />
@@ -85,23 +87,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   header: {
-    marginTop: 20,
+    marginTop: 10,
+    marginBottom: 20,
+    alignItems: 'center',
   },
+  
   welcome: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#fff",
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#fff',
   },
+  
   date: {
-    color: "#ccc",
-    fontSize: 14,
-    marginBottom: 10,
+    fontSize: 16,
+    color: '#b0b0b0',
+    marginTop: 4,
+    fontWeight:'bold',
+    marginBottom: 20,
   },
   prompt: {
-    color: "#fff",
-    fontSize: 16,
-    marginVertical: 10,
-    fontWeight: "600",
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 20,
+    textAlign: 'center',
   },
   row: {
     justifyContent: "space-between",

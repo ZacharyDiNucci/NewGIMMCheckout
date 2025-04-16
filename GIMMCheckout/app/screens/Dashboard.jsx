@@ -72,18 +72,21 @@ const Dashboard = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.headerText}>
-        {userDetails ? `Welcome, ${userDetails.first_name}` : 'Username'}
-      </Text>
-      <Text style={styles.headerText}>{new Date().toLocaleDateString()}</Text>
-      {activeTab == 'active' ? <ActiveRentalsList /> : <ReservationSystem />}
-      <View style={styles.buttonRow}>
-        {/* <Button title="Refresh" onPress={fetchUserDevices} /> */}
-        <Button title="Logout" onPress={handleLogout} />
+    <>
+      <View style={styles.container}>
+        <View style={styles.welcomeContainer}>
+          <Text style={styles.welcome}>
+            {userDetails ? `Welcome, ${userDetails.first_name}` : 'Username'}
+          </Text>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.date}>{new Date().toLocaleDateString()}</Text>
+        {activeTab === 'active' ? <ActiveRentalsList /> : <ReservationSystem />}
       </View>
       <NavFooter activeTab={activeTab} setActiveTab={setActiveTab} />
-    </View>
+    </>
   );
 };
 
