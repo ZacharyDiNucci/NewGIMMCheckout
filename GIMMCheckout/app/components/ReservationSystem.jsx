@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, FlatList, StyleSheet, Button, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { API_BASE_URL } from '../config';
-import InfoModal from "./InfoModal";
+import ResModal from "./ResModal";
 import styles from '../app.styles';
 
 const ReservationSystem = () => {
@@ -185,7 +185,7 @@ const ReservationSystem = () => {
           contentContainerStyle={styles.listContent}
         />
       )}
-      <InfoModal visible={modalVisible} onClose={closeModal} item={selectedItem} />
+      <ResModal visible={modalVisible} onClose={closeModal} item={selectedItem} />
     </View>
   );
 }
