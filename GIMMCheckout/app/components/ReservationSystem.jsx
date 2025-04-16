@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, FlatList, StyleSheet, Button, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { API_BASE_URL } from '../config';
+import InfoModal from "./InfoModal";
 import styles from '../app.styles';
 
 const ReservationSystem = () => {
@@ -14,6 +15,9 @@ const ReservationSystem = () => {
     types: false,
     devices: false,
   });
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     fetchCategories();
@@ -75,8 +79,6 @@ const ReservationSystem = () => {
     setDeviceTypes([]);
     setLoading({ categories: false, types: false, devices: false });
   };
-  
-  
 
   const renderCategories = ({ item }) => (
     <TouchableOpacity style={styles.techButton} onPress={() => handleCategorySelect(item)}>
@@ -108,7 +110,7 @@ const ReservationSystem = () => {
     if (!item.device_type_id) return null;
 
     return (
-      <TouchableOpacity style={styles.deviceButton}>
+      <TouchableOpacity style={styles.deviceButton} onPress={() => openModal(item)}>
         <Image
           source={{ uri: `${API_BASE_URL}/local-bucket/${item.image_url}` }}
           style={styles.techImage}
@@ -117,6 +119,17 @@ const ReservationSystem = () => {
         <Text style={styles.deviceText}>{item.device_name}</Text>
       </TouchableOpacity>
     );
+  };
+
+  
+  const openModal = (item) => {
+    setSelectedItem(item);  // Set the selected item
+    setModalVisible(true);      // Show the modal
+  };
+
+  // Function to close modal
+  const closeModal = () => {
+    setModalVisible(false); // Hide the modal
   };
 
   return (
@@ -172,6 +185,7 @@ const ReservationSystem = () => {
           contentContainerStyle={styles.listContent}
         />
       )}
+      <InfoModal visible={modalVisible} onClose={closeModal} item={selectedItem} />
     </View>
   );
 }

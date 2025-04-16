@@ -13,8 +13,6 @@ const Dashboard = () => {
   const [userDetails, setUserDetails] = useState(null);
   const [activeTab, setActiveTab] = useState('active');
   const [error, setError] = useState(null);  // State to store any errors
-  const [modalVisible, setModalVisible] = useState(false);  // State to control modal visibility
-  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     // If the user is logged in, fetch user devices
@@ -59,16 +57,6 @@ const Dashboard = () => {
       setError('An error occurred while fetching user details');
       console.error(error);
     }
-  };
-
-  const openModal = (item) => {
-    setSelectedItem(item);  // Set the selected item
-    setModalVisible(true);      // Show the modal
-  };
-
-  // Function to close modal
-  const closeModal = () => {
-    setModalVisible(false); // Hide the modal
   };
 
   return (
