@@ -246,7 +246,6 @@ app.get('/api/item-categories', async (req, res) => {
 
     try {
         const result = await query(selectSql);
-        console.log(result)
         return res.status(200).json(result);
     } catch (error) {
         console.log(error);
@@ -255,10 +254,11 @@ app.get('/api/item-categories', async (req, res) => {
 });
 
 app.get('/api/device-types', async (req, res) => {
-    const selectSql = 'SELECT * FROM gimmcheckout_device_types';
+    const categoryId = parseInt(req.query.categoryId, 10);
+    const selectSql = 'SELECT * FROM gimmcheckout_device_types WHERE category_id = ?';
 
     try {
-        const result = await query(selectSql);
+        const result = await query(selectSql, [categoryId]);
         return res.status(200).json(result);
     } catch (error) {
         console.log(error);
@@ -282,10 +282,8 @@ app.get('/api/device/:id', async (req, res) => {
   INNER JOIN gimmcheckout_device_types t ON d.device_type_id = t.id
   WHERE d.device_type_id = ?
 `;
-console.log(selectSql)
     try {
         const result = await query(selectSql, [id]);
-        console.log(result)
         return res.status(200).json(result);
     } catch (error) {
         console.log(error);

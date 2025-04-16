@@ -208,6 +208,28 @@ const styles = StyleSheet.create({
       listContent: {
         paddingBottom: 20,
       },
+
+
+
+
+      deviceText: {
+        marginTop: 5,
+        fontSize: 14,
+        fontWeight: 'bold',
+      },
+      deviceButton: {
+        backgroundColor: 'white',
+        height: 150,
+        marginBottom: 15,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      deviceHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 20,
+      },
 });
 
 export default styles;
