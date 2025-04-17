@@ -261,6 +261,7 @@ app.get('/api/device-types', async (req, res) => {
 
     try {
         const result = await query(selectSql, [categoryId]);
+        console.log("Device types for category ID", categoryId, ":", result);
         return res.status(200).json(result);
     } catch (error) {
         console.log(error);
@@ -270,7 +271,6 @@ app.get('/api/device-types', async (req, res) => {
 
 app.get('/api/device/:id', async (req, res) => {
     const id = parseInt(req.params.id, 10);
-    console.log("Fetching devices with device_type_id:", id);
     const selectSql = `
   SELECT 
     d.id AS device_id,

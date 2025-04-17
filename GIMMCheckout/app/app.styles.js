@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         backgroundColor: '#ccc',
         padding: 16,
+        borderRadius: 10,
     },
       title: {
         fontSize: 32,
@@ -205,18 +206,20 @@ const styles = StyleSheet.create({
         color: '#333',
         fontSize: 16,
         textAlign: 'center',
+        fontWeight: 'bold',
       },
       techRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
       },
+      techTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#333',
+      },
       listContent: {
         paddingBottom: 20,
       },
-
-
-
-
       deviceText: {
         marginTop: 5,
         fontSize: 14,
@@ -225,6 +228,15 @@ const styles = StyleSheet.create({
       deviceButton: {
         backgroundColor: 'white',
         height: 150,
+        marginBottom: 15,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      typeButton: {
+        flex: 1,
+        backgroundColor: 'white',
+        margin: 10,
         marginBottom: 15,
         borderRadius: 10,
         justifyContent: 'center',

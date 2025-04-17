@@ -113,13 +113,13 @@ const ReservationSystem = () => {
     if (!item.id) return null;
 
     return (
-      <TouchableOpacity style={styles.techButton} onPress={() => handleTypeSelect(item)}>
+      <TouchableOpacity style={styles.typeButton} onPress={() => handleTypeSelect(item)}>
         <Image
           source={{ uri: `${API_BASE_URL}/local-bucket/${item.image_url}` }}
-          style={styles.techImage}
+          style={styles.typeImage}
           resizeMode="contain"
         />
-        <Text style={styles.techText}>{item.type_name}</Text>
+        <Text style={styles.techText}>{item.device_name}</Text>
       </TouchableOpacity>
     );
   };
@@ -188,7 +188,7 @@ const ReservationSystem = () => {
           )}
         </View>
       ) : selectedCategory ? (
-        <View style={styles.container}>
+        <View style={styles.containerLight}>
           {(selectedCategory || selectedType) && (
             <View style={styles.deviceHeader}>
               <Button title="Back" onPress={goBack} />
