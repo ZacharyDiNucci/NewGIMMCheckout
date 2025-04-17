@@ -24,12 +24,13 @@ export default function Login() {
           password,
         }),
       });
-  
+      
       const json = await response.json();
   
       if (response.status === 200) {
         // ✅ Use context to store token AND update login status
-        await setAccountToken(json.token);
+        Consol.log("levle", json.level)
+        await setAccountToken(json.token, json.level);
   
         Alert.alert("Login Successful", "Redirecting to dashboard...");
         // navigation.navigate("TechCategoryList");
@@ -43,6 +44,8 @@ export default function Login() {
   };
 
   return (
+
+
     <View style={styles.loginScreenContainer}>
       <Text style={styles.loginHeader}>GIMM Checkout</Text>
 

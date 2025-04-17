@@ -89,18 +89,19 @@ app.post('/api/login',
                 const user = result[0];
                 if (bcrypt.compareSync(password, user.password)) {
                     req.session.user = { userId: user.id };
-
+                    
                     const tokenExpiration = req.body['remember-me'] === 'true' ? '7d' : '1d';
                     const token = jwt.sign(
                         { userId: user.id },
                         process.env.JWT_SECRET,
                         { expiresIn: tokenExpiration }
                     );
-
+                    console.log(user.id)
                     return res.status(200).json({
                         message: 'Login successful',
                         token, // ✅ Send token back in response
                         userId: user.id, // optional: send user info
+                        level: user.user_permission
                     });
                 } else {
                     return res.status(400).json({ message: 'Invalid username or password' });
@@ -294,8 +295,9 @@ app.get('/api/device/:id', async (req, res) => {
 })
 
 app.get('/api/loaned-devices', async (req, res) => {
-    const { typeId } = req.query;  // Use query parameter instead of URL parameter
-    const selectSql = `
+    const { typeId } = req.query;
+  
+    let selectSql = `
       SELECT
         l.id AS loan_id,
         l.due_date,
@@ -307,17 +309,23 @@ app.get('/api/loaned-devices', async (req, res) => {
       FROM gimmcheckout_loans l
       INNER JOIN gimmcheckout_devices d ON l.device_id = d.id
       INNER JOIN gimmcheckout_device_types t ON d.device_type_id = t.id
-      WHERE d.device_type_id = ?
     `;
-
+  
+    const params = [];
+  
+    if (typeId) {
+      selectSql += `WHERE d.device_type_id = ?`;
+      params.push(typeId);
+    }
+  
     try {
-      const result = await query(selectSql, [typeId]);  // Use typeId directly
+      const result = await query(selectSql, params);
       return res.status(200).json(result);
     } catch (error) {
-      console.error('Error fetching loaned devices by type:', error);
+      console.error('Error fetching loaned devices:', error);
       return res.status(500).json({ message: 'An error occurred while fetching loaned devices' });
     }
-});
+  });
 
   
 app.get('/api/all-devices', async (req, res) => {

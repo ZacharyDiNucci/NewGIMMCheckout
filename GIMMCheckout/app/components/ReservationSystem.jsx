@@ -67,7 +67,6 @@ const ReservationSystem = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/loaned-devices?typeId=${typeId}`);  // Pass typeId as query parameter
       const data = await response.json();
-      console.log("Loans data:", data); // Log the loans data
       setLoans(data);
     } catch (error) {
       console.error("Error fetching loans:", error);
