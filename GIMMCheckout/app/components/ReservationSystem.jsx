@@ -65,7 +65,7 @@ const ReservationSystem = () => {
 
   const fetchLoans = async (typeId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/loaned-devices?typeId=${typeId}`);  // Pass typeId as query parameter
+      const response = await fetch(`${API_BASE_URL}/api/loaned-devices/by-type?typeId=${typeId}`);  // Pass typeId as query parameter
       const data = await response.json();
       setLoans(data);
     } catch (error) {

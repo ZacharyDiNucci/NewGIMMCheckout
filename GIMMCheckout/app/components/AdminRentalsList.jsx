@@ -3,14 +3,14 @@ import { View, Text, FlatList, StyleSheet, Button, TouchableOpacity } from 'reac
 import { useAuth } from '../AuthContext';
 import { API_BASE_URL } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import InfoModal from "./InfoModal"; // Import InfoModal component
+import AdminModal from "./AdminModal";
 import styles from '../app.styles';
 
 const ActiveRentalsList = () => {
-    const { isLoggedIn } = useAuth();
-    const [devicesLoaned, setDevicesLoaned] = useState(null);
-    const [error, setError] = useState(null);
-    const [modalVisible, setModalVisible] = useState(false);
+  const { isLoggedIn } = useAuth();
+  const [devicesLoaned, setDevicesLoaned] = useState(null);
+  const [error, setError] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
     useEffect(() => {
@@ -37,6 +37,13 @@ const ActiveRentalsList = () => {
       console.error(error);
     }
   };
+
+  const handleReturned = async (item) => {
+    try {
+    } catch (error) {
+      console.error("Error returning device:", error);
+    }
+  }
 
 
   const openModal = (item) => {
@@ -66,23 +73,30 @@ const ActiveRentalsList = () => {
                 <Text style={[styles.columnHeader, styles.dueColumn]}>Due By</Text>
               </View>
             }
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => openModal(item)}>
-                <View style={styles.itemRow}>
-                  <Text style={[styles.itemText, styles.nameColumn]}>{item.device_name}</Text>
-                  <Text style={[styles.itemText, styles.countColumn]}>{item.device_number}</Text>
-                  <Text style={[styles.itemText, styles.dueColumn]}>
-                    {new Date(item.due_date).toLocaleDateString()}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
+            renderItem={({ item }) => {
+              const dueDate = new Date(item.due_date);
+              const isPastDue = dueDate < new Date(); // Check if the due date is in the past
+  
+              return (
+                <TouchableOpacity onPress={() => openModal(item)}>
+                  <View style={styles.itemRow}>
+                    <Text style={[styles.itemText, styles.nameColumn]}>{item.device_name}</Text>
+                    <Text style={[styles.itemText, styles.countColumn]}>{item.device_number}</Text>
+                    <View style={[styles.dueColumn, isPastDue && styles.pastDueDate]}>
+                      <Text style={styles.itemText}>
+                        {dueDate.toLocaleDateString()}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
           />
           </View>
         ) : (
             <Text>Loading devices...</Text>
         )}
-        <InfoModal visible={modalVisible} onClose={closeModal} item={selectedItem} />
+        <AdminModal visible={modalVisible} onClose={closeModal} item={selectedItem}/>
     </>
   );
 };
