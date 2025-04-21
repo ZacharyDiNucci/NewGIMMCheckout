@@ -54,7 +54,6 @@ const ReservationSystem = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/device/${typeId}`);
       const data = await response.json();
-      console.log("Devices data:", data); // Log the devices data
       setDevices(data);
     } catch (error) {
       console.error("Error fetching devices:", error);
@@ -65,9 +64,8 @@ const ReservationSystem = () => {
 
   const fetchLoans = async (typeId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/loaned-devices?typeId=${typeId}`);  // Pass typeId as query parameter
+      const response = await fetch(`${API_BASE_URL}/api/loaned-devices/by-type?typeId=${typeId}`);  // Pass typeId as query parameter
       const data = await response.json();
-      console.log("Loans data:", data); // Log the loans data
       setLoans(data);
     } catch (error) {
       console.error("Error fetching loans:", error);

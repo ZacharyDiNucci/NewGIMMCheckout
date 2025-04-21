@@ -18,7 +18,7 @@ require('dotenv').config();
 // CORS Configuration
 const corsOptions = {
     origin: 'http://localhost:8081',  // Allow the frontend to make requests
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,  // Allows cookies to be sent with the request
 };
@@ -89,18 +89,18 @@ app.post('/api/login',
                 const user = result[0];
                 if (bcrypt.compareSync(password, user.password)) {
                     req.session.user = { userId: user.id };
-
+                    
                     const tokenExpiration = req.body['remember-me'] === 'true' ? '7d' : '1d';
                     const token = jwt.sign(
                         { userId: user.id },
                         process.env.JWT_SECRET,
                         { expiresIn: tokenExpiration }
                     );
-
                     return res.status(200).json({
                         message: 'Login successful',
                         token, // ✅ Send token back in response
                         userId: user.id, // optional: send user info
+                        level: user.user_permission
                     });
                 } else {
                     return res.status(400).json({ message: 'Invalid username or password' });
@@ -261,7 +261,6 @@ app.get('/api/device-types', async (req, res) => {
 
     try {
         const result = await query(selectSql, [categoryId]);
-        console.log("Device types for category ID", categoryId, ":", result);
         return res.status(200).json(result);
     } catch (error) {
         console.log(error);
@@ -294,7 +293,40 @@ app.get('/api/device/:id', async (req, res) => {
 })
 
 app.get('/api/loaned-devices', async (req, res) => {
-    const { typeId } = req.query;  // Use query parameter instead of URL parameter
+  const selectSql = `
+    SELECT
+      l.id AS loan_id,
+      l.due_date,
+      l.borrow_datetime,
+      d.device_number,
+      t.description,
+      t.device_name,
+      t.image_url,
+      u.first_name,
+      u.last_name
+    FROM gimmcheckout_loans l
+    INNER JOIN gimmcheckout_devices d ON l.device_id = d.id
+    INNER JOIN gimmcheckout_device_types t ON d.device_type_id = t.id
+    LEFT JOIN gimmcheckout_users u ON l.borrower_id = u.id
+    WHERE l.return_datetime IS NULL
+  `;
+
+  try {
+    const result = await query(selectSql);
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Error fetching all loaned devices:', error);
+    return res.status(500).json({ message: 'An error occurred while fetching devices' });
+  }
+});
+
+app.get('/api/loaned-devices/by-type', async (req, res) => {
+    const { typeId } = req.query;
+  
+    if (!typeId) {
+      return res.status(400).json({ message: 'typeId is required' });
+    }
+  
     const selectSql = `
       SELECT
         l.id AS loan_id,
@@ -307,18 +339,38 @@ app.get('/api/loaned-devices', async (req, res) => {
       FROM gimmcheckout_loans l
       INNER JOIN gimmcheckout_devices d ON l.device_id = d.id
       INNER JOIN gimmcheckout_device_types t ON d.device_type_id = t.id
-      WHERE d.device_type_id = ?
+      WHERE l.return_datetime IS NULL AND d.device_type_id = ?
     `;
-
+  
     try {
-      const result = await query(selectSql, [typeId]);  // Use typeId directly
+      const result = await query(selectSql, [typeId]);
       return res.status(200).json(result);
     } catch (error) {
       console.error('Error fetching loaned devices by type:', error);
-      return res.status(500).json({ message: 'An error occurred while fetching loaned devices' });
+      return res.status(500).json({ message: 'An error occurred while fetching devices' });
     }
-});
+  });
 
+  app.patch('/api/return', async (req, res) => {
+    const loanId = parseInt(req.query.loanId, 10);
+    if (isNaN(loanId)) {
+      return res.status(400).json({ error: 'Invalid loan ID' });
+    }
+  
+    const updateSql = 'UPDATE gimmcheckout_loans SET return_datetime = CURRENT_TIMESTAMP WHERE id = ?';
+
+    try {
+      const result = await query(updateSql, [loanId]);
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Loan not found' });
+      }
+      res.json({ message: 'Loan marked as returned' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Database error' });
+    }
+  });
+    
   
 app.get('/api/all-devices', async (req, res) => {
 
@@ -340,8 +392,6 @@ app.get('/api/all-devices', async (req, res) => {
   
     try {
       const result = await query(selectSql);
-      console.log("Devices:");
-
       console.log(result);
       return res.status(200).json(result);
     } catch (error) {

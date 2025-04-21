@@ -4,12 +4,13 @@ import { useAuth } from '../AuthContext';
 import { API_BASE_URL } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ActiveRentalsList from "../components/ActiveRentalsList";
+import AdminRentalsList from "../components/AdminRentalsList";
 import ReservationSystem from "../components/ReservationSystem";
 import NavFooter from "../components/NavFooter";
 import styles from '../app.styles';
 
 const Dashboard = () => {
-  const { isLoggedIn, setAccountToken } = useAuth();  // Access AuthContext to get the token and login state
+  const { isLoggedIn, setAccountToken, permissionLevel } = useAuth();  // Access AuthContext to get the token and login state
   const [userDetails, setUserDetails] = useState(null);
   const [activeTab, setActiveTab] = useState('active');
   const [error, setError] = useState(null);  // State to store any errors
@@ -49,6 +50,7 @@ const Dashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("token: ",data)
         setUserDetails(data[0]);
       } else {
         setError('Failed to fetch user details');
@@ -58,6 +60,26 @@ const Dashboard = () => {
       console.error(error);
     }
   };
+
+  const renderTabContent = () => {
+    if (permissionLevel >= 2) {
+      switch (activeTab) {
+        case 'active':
+          return <ActiveRentalsList />;
+        case 'available':
+          return <ReservationSystem />;
+        case 'admin':
+          return <AdminRentalsList />;
+        default:
+          return null; // fallback if needed
+      }
+    } else {
+      return activeTab === 'active'
+        ? <ActiveRentalsList />
+        : <ReservationSystem />;
+    }
+  };
+  
 
   return (
     <>
@@ -71,7 +93,7 @@ const Dashboard = () => {
           </TouchableOpacity>
         </View>
         <Text style={styles.date}>{new Date().toLocaleDateString()}</Text>
-        {activeTab === 'active' ? <ActiveRentalsList /> : <ReservationSystem />}
+        {renderTabContent()}
       </View>
       <NavFooter activeTab={activeTab} setActiveTab={setActiveTab} />
     </>

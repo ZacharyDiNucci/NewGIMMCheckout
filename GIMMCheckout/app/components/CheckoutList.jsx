@@ -31,11 +31,10 @@ export default function CheckoutList() {
         renderItem={({ item }) => (
           <View style={styles.itemRow}>
             <Text style={styles.itemText}>{item.title}</Text>
-            <Button title="Info" onPress={() => openModal(item.info)} /> {/* Open modal with selected info */}
+            <Button title="Info" onPress={() => openModal(item.info)} />
           </View>
         )}
       />
-      {/* InfoModal is rendered conditionally */}
       <InfoModal visible={modalVisible} onClose={closeModal} infoText={selectedInfo} />
     </View>
   );
