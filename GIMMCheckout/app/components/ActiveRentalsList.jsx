@@ -75,17 +75,22 @@ const ActiveRentalsList = () => {
                 <Text style={[styles.columnHeader, styles.dueColumn]}>Due By</Text>
               </View>
             }
-            renderItem={({ item }) => (
+            renderItem={({ item }) => {
+              const dueDate = new Date(item.due_date);
+              const isPastDue = dueDate < new Date();
+
+              return (
               <TouchableOpacity onPress={() => openModal(item)}>
                 <View style={styles.itemRow}>
                   <Text style={[styles.itemText, styles.nameColumn]}>{item.device_name}</Text>
                   <Text style={[styles.itemText, styles.countColumn]}>{item.device_number}</Text>
-                  <Text style={[styles.itemText, styles.dueColumn]}>
+                  <Text style={[styles.itemText, styles.dueColumn, isPastDue && styles.pastDueDate]}>
                     {new Date(item.due_date).toLocaleDateString()}
                   </Text>
                 </View>
               </TouchableOpacity>
-            )}
+              );
+            }}
           />
         ) : (
             <Text>Loading devices...</Text>
