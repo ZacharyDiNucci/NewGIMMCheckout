@@ -135,6 +135,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginBottom: 20,
       },
+      modalTextBold: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 20,
+      },
       modalImage: {
         width: 100,
         height: 100,

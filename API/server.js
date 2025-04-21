@@ -243,6 +243,60 @@ app.post('/api/user-devices', async (req, res) => {
     }
 });
 
+app.put('/api/user-devices', async (req, res) => {
+
+    console.log("Hello");
+    // Get the token from the Authorization header
+    const token = req.headers.authorization?.split(' ')[1]; // The token is after 'Bearer'
+    const item = req.headers.authorization?.split(' ')[2];
+    
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is required' });
+    }
+
+    try {
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Extract the userId from the decoded token
+        const userId = decoded.userId; // Assuming 'userId' is a field in your token
+
+        const item = req.body.item;
+
+        const checkOutDate = new Date();
+        const dueDate = new Date(checkOutDate);
+        dueDate.setDate(dueDate.getDate()+14); // Set due date to 14 days in the future
+
+        const insertSql = `
+            INSERT INTO gimmcheckout_loans (
+                device_id,
+                borrower_id,
+                reserve_datetime,
+                borrow_datetime,
+                due_date)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+
+        let insertParams = [
+            item.device_id,
+            userId,
+            req.body.reserveDate,
+            checkOutDate,
+            dueDate
+        ];
+        console.log(insertParams);
+
+        // Query the database using the userId
+        const result = await query(insertSql, insertParams);
+
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'An error occurred' });
+    }
+});
+
 app.get('/api/item-categories', async (req, res) => {
     const selectSql = 'SELECT * FROM gimmcheckout_item_categories';
 
