@@ -29,7 +29,6 @@ export default function Login() {
   
       if (response.status === 200) {
         // ✅ Use context to store token AND update login status
-        console.log("Login successful:", json.level);
         await setAccountToken(json.token, json.level);
   
         Alert.alert("Login Successful", "Redirecting to dashboard...");

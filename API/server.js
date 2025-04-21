@@ -96,7 +96,6 @@ app.post('/api/login',
                         process.env.JWT_SECRET,
                         { expiresIn: tokenExpiration }
                     );
-                    console.log(user.id)
                     return res.status(200).json({
                         message: 'Login successful',
                         token, // ✅ Send token back in response
@@ -262,7 +261,6 @@ app.get('/api/device-types', async (req, res) => {
 
     try {
         const result = await query(selectSql, [categoryId]);
-        console.log("Device types for category ID", categoryId, ":", result);
         return res.status(200).json(result);
     } catch (error) {
         console.log(error);
@@ -394,8 +392,6 @@ app.get('/api/all-devices', async (req, res) => {
   
     try {
       const result = await query(selectSql);
-      console.log("Devices:");
-
       console.log(result);
       return res.status(200).json(result);
     } catch (error) {

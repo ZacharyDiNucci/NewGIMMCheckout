@@ -54,7 +54,6 @@ const ReservationSystem = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/device/${typeId}`);
       const data = await response.json();
-      console.log("Devices data:", data); // Log the devices data
       setDevices(data);
     } catch (error) {
       console.error("Error fetching devices:", error);
