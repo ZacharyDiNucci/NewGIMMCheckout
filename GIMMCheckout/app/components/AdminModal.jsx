@@ -7,7 +7,6 @@ export default function AdminModal({ visible, onClose, item }) {
   if (!visible) return null;
 
 const onReturned = async () => {
-  console.log("Sending loanId:", item.loan_id);
   try {
     const response = await fetch(`${API_BASE_URL}/api/return?loanId=${item.loan_id}`, {
       method: "PATCH",

@@ -50,7 +50,6 @@ const Dashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("token: ",data)
         setUserDetails(data[0]);
       } else {
         setError('Failed to fetch user details');
