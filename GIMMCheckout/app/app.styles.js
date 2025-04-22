@@ -252,6 +252,23 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 20,
       },
+
+      pastDueDate: {
+        borderWidth: 2,
+        borderColor: 'red',
+        borderRadius: 8,
+        padding: 0,
+      },
+
+      modalButtonRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 20,
+      },
+      button: {
+        marginHorizontal: 10,
+      },
 });
 
 export default styles;
