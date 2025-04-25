@@ -297,6 +297,41 @@ app.put('/api/user-devices', async (req, res) => {
     }
 });
 
+app.delete('/api/user-devices', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is required' });
+    }
+
+    try {
+        console.log("Start");
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.userId;
+
+        const item = req.body.item;
+        console.log(item);
+        if (!item || !item.device_number) {
+            return res.status(400).json({ message: 'Item device_id is required' });
+        }
+
+        const deleteSql = `
+            DELETE FROM gimmcheckout_loans
+            WHERE id = ?
+        `;
+        console.log("Running query");
+        const result = await query(deleteSql, item.loan_id);
+        console.log("complete");
+        console.log(result);
+
+        return res.status(200).json({ message: 'Item removed successfully', result });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'An error occurred' });
+    }
+});
+
 app.get('/api/item-categories', async (req, res) => {
     const selectSql = 'SELECT * FROM gimmcheckout_item_categories';
 
