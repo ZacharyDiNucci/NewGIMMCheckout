@@ -18,7 +18,7 @@ require('dotenv').config();
 // CORS Configuration
 const corsOptions = {
     origin: 'http://localhost:8081',  // Allow the frontend to make requests
-    methods: ['GET', 'POST', 'PATCH'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,  // Allows cookies to be sent with the request
 };
@@ -231,6 +231,7 @@ app.post('/api/user-devices', async (req, res) => {
             INNER JOIN gimmcheckout_devices d ON l.device_id = d.id
             INNER JOIN gimmcheckout_device_types t ON d.device_type_id = t.id
             WHERE l.borrower_id = ?
+              AND l.return_datetime IS NULL
         `;
 
         // Query the database using the userId
