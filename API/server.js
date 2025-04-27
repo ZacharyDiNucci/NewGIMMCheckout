@@ -18,7 +18,7 @@ require('dotenv').config();
 // CORS Configuration
 const corsOptions = {
     origin: 'http://localhost:8081',  // Allow the frontend to make requests
-    methods: ['GET', 'POST', 'PATCH'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,  // Allows cookies to be sent with the request
 };
@@ -231,12 +231,102 @@ app.post('/api/user-devices', async (req, res) => {
             INNER JOIN gimmcheckout_devices d ON l.device_id = d.id
             INNER JOIN gimmcheckout_device_types t ON d.device_type_id = t.id
             WHERE l.borrower_id = ?
+              AND l.return_datetime IS NULL
         `;
 
         // Query the database using the userId
         const result = await query(selectSql, [userId]);
 
         return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'An error occurred' });
+    }
+});
+
+app.put('/api/user-devices', async (req, res) => {
+
+    console.log("Hello");
+    // Get the token from the Authorization header
+    const token = req.headers.authorization?.split(' ')[1]; // The token is after 'Bearer'
+    const item = req.headers.authorization?.split(' ')[2];
+    
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is required' });
+    }
+
+    try {
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Extract the userId from the decoded token
+        const userId = decoded.userId; // Assuming 'userId' is a field in your token
+
+        const item = req.body.item;
+
+        const checkOutDate = new Date();
+        const dueDate = new Date(checkOutDate);
+        dueDate.setDate(dueDate.getDate()+14); // Set due date to 14 days in the future
+
+        const insertSql = `
+            INSERT INTO gimmcheckout_loans (
+                device_id,
+                borrower_id,
+                reserve_datetime,
+                borrow_datetime,
+                due_date)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+
+        let insertParams = [
+            item.device_id,
+            userId,
+            req.body.reserveDate,
+            checkOutDate,
+            dueDate
+        ];
+        console.log(insertParams);
+
+        // Query the database using the userId
+        const result = await query(insertSql, insertParams);
+
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'An error occurred' });
+    }
+});
+
+app.delete('/api/user-devices', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is required' });
+    }
+
+    try {
+        console.log("Start");
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.userId;
+
+        const item = req.body.item;
+        console.log(item);
+        if (!item || !item.device_number) {
+            return res.status(400).json({ message: 'Item device_id is required' });
+        }
+
+        const deleteSql = `
+            DELETE FROM gimmcheckout_loans
+            WHERE id = ?
+        `;
+        console.log("Running query");
+        const result = await query(deleteSql, item.loan_id);
+        console.log("complete");
+        console.log(result);
+
+        return res.status(200).json({ message: 'Item removed successfully', result });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: 'An error occurred' });

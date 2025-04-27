@@ -238,7 +238,7 @@ const ReservationSystem = () => {
       <ResModal visible={modalVisible} onClose={closeModal} item={selectedItem} />
     </View>
   );
-  
+
 }
 
 export default ReservationSystem;
