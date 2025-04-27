@@ -50,7 +50,7 @@ export function AuthProvider({ children }) {
     if (token) {
       await AsyncStorage.setItem("accountToken", token);
       if (level !== null) {
-        await AsyncStorage.setItem("permissionLevel", level);
+        await AsyncStorage.setItem("permissionLevel", level.toString());
         setPermissionLevel(level);
       }
     } else {
