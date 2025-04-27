@@ -90,15 +90,6 @@ export default function InfoModal({ visible, onClose, item}) {
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-        
-          <Image source={{ uri: `${API_BASE_URL}/local-bucket/` + item.image_url }} style={styles.modalImage} resizeMode="contain"/>
-          <Text style={styles.modalText}>{item.device_name} <b>#{item.device_number}</b></Text>
-          <Text style={styles.modalText}>{item.description}</Text>
-          <Text style={styles.modalText}><b>Rental Period:</b> 7d</Text> {/* TODO: dynamically calculate rental period */}
-          <Text style={styles.modalText}><b>Due:</b> {dueDate} </Text> 
-          <Button title="Close" onPress={onClose} />
-        </View>
         {reserveSuccess ? successModal() : receiptModal()}
       </View>
     </Modal>
