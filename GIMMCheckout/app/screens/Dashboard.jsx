@@ -12,7 +12,7 @@ import styles from '../app.styles';
 const Dashboard = () => {
   const { isLoggedIn, setAccountToken, permissionLevel } = useAuth();  // Access AuthContext to get the token and login state
   const [userDetails, setUserDetails] = useState(null);
-  const [activeTab, setActiveTab] = useState('active');
+  const [activeTab, setActiveTab] = useState(permissionLevel > 1 ? 'admin' : 'active');
   const [error, setError] = useState(null);  // State to store any errors
 
   useEffect(() => {

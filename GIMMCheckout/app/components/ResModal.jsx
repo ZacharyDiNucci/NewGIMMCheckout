@@ -8,6 +8,14 @@ import { API_BASE_URL } from "../config";
 export default function InfoModal({ visible, onClose, item}) {
   if (!visible) return null; // Don't render modal if not visible
 
+  const now = new Date();
+  now.setDate(now.getDate() + 7); //TODO: store rental period in db and get here instead of hardcoded
+
+  const mm = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const dd = String(now.getDate()).padStart(2, '0');
+  const yyyy = now.getFullYear();
+
+  const dueDate = `${mm}/${dd}/${yyyy}`;
   const reserveDate = new Date();
 
   const [reserveSuccess, setReserveSuccess] = useState(false);
